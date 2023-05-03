@@ -20,8 +20,9 @@ use App\Http\Controllers\SearchController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+/*
 Route::get('/search', [ SearchController::class, 'search'])->name('search');
 Route::post('/task/update', [ TaskController::class, 'update'])->name('task.update');
 Route::apiResource('task', TaskController::class)->except('update');
 Route::apiResource('tag', TagController::class)->except('update');
+*/

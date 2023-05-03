@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Task;
+use App\Models\User;
 
 class SearchService{
 
@@ -16,7 +17,19 @@ class SearchService{
                        
         } 
 
-        // return response()->json(['data' => {} ]);
+    }
+
+    public function searchTag($request){
+
+        $params = explode(',', $request->key);
+        
+        $task = User::findOrFail(auth()->user()->id)
+                     ->tasks()
+                     ->whereHas('tags', function ($query) use ( $params ){ $query->whereIn('tag', $params); })                     
+                     ->with(['tags'])
+                     ->get();
+ 
+        return response()->json(['data' => $task ]);
     }
 
 }

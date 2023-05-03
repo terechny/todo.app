@@ -79,6 +79,7 @@
 
                     </div>                   
                     <input type="hidden" name="id">
+                    @csrf
                 </form>               
 
             </div>
@@ -111,6 +112,7 @@
 
             formData.append("task_id", form.id.value);
             formData.append("tag", form.tag.value);
+            formData.append("_token", form._token.value);
 
             let response = await fetch('/api/tag' , {
 
@@ -216,12 +218,14 @@
             const form = document.forms['add-task-form']
    
             const formData = new FormData(form)
-
             
             let response = await fetch('/api/task', {
 
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': form._token.value
+                }
             });
 
             let result = await response.json();
@@ -276,7 +280,10 @@
 
             for( let i in data.tags){
 
-                str +=       `<span class="badge text-bg-light p-2 m-2">` + data.tags[i].tag + `</span>`
+                str +=      `<span class="badge text-bg-light p-2 m-2" onclick="tagFilter()"><label>`
+                str +=             data.tags[i].tag
+                str +=            `<input type="checkbox" class="tag" value="` + data.tags[i].tag + `" name="` + data.tags[i].tag + `">`
+                str +=      `</span>`
             }
 
             str +=       `</div>` 
@@ -355,8 +362,67 @@
 
         }
 
+        async function tagFilter(){
+            
+            const activeCheckboxes = document.querySelectorAll('input[type="checkbox"].tag:checked');
+            const tags = []
+
+
+            activeCheckboxes.forEach( function(node, index) {
+
+                    if(!tags.includes(node.value)){
+
+                        tags.push(node.value)
+                    }
+                }
+            )
+
+            let text = tags.toString();
+      
+            if( text.length > 0 ){
+
+                let response = await fetch('/api/search/tag?key=' + text, {
+
+                    method: 'GET',
+                });
+
+                let result = await response.json()
+                taskRender(result)
+
+            }else{
+
+                loadTask()
+            } 
+
+            const tagCheckboxes = document.querySelectorAll('input[type="checkbox"].tag');
+            
+            let checkedBox = [];
+
+            tagCheckboxes.forEach( function(node, index) {
+                    
+                    if(tags.includes(node.value) ){
+
+                        if(!checkedBox.includes(node.value)){
+
+                            node.checked = true
+                        }
+
+                        checkedBox.push(node.value)
+
+                        node.parentElement.parentElement.classList.remove("text-bg-light"); 
+                        node.parentElement.parentElement.classList.add("text-bg-primary");
+                    }                                      
+                }
+            )            
+        }
+
         loadTask()
           
     </script>
+    <style>
+        .tags{
+            cursor:pointer;
+        }
+    </style>
 </body>
 </html>

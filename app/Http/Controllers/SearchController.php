@@ -19,4 +19,10 @@ class SearchController extends Controller
 
         return $this->service->search($request);
     }
+
+    public function searchTag(Request $request){
+
+        return $this->service->searchTag($request);
+    }
+
 }
